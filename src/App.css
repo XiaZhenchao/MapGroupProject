@@ -1,0 +1,21 @@
+#TitleBox {
+  background-color: #67B7C2;
+  border-radius: 20px;
+  text-align: center;
+  padding: 10px;
+  color: #ffffff;
+  font-size: 20px;
+  
+}
+
+#Container {
+  background-color: #f4f5f5;
+  border-radius: 20px;
+  text-align: center;
+  padding: 200px 10px; 
+}
+
+#Select-File-Button {
+  margin-left: 0px;
+}
+

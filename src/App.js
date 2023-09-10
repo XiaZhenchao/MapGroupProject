@@ -1,5 +1,5 @@
 import React from 'react';
-
+import './App.css';
 
 class App extends React.Component {
     constructor(props) {
@@ -9,9 +9,15 @@ class App extends React.Component {
     render() {
         return (
             <div id="root">
+                <div id = "TitleBox">  
                 <h1>
-                    test
-                </h1>
+                    Map
+                </h1> </div>
+                <button id="Select-File-Button">
+                    Select File
+                </button>
+                <div id = "Container">
+                </div>
             </div>
         );
     }
