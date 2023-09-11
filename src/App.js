@@ -10,6 +10,7 @@ class App extends React.Component {
             selectedFile: null,
             map: null,
             rendering: false,
+            fileExtension: null,
         };
     }
 
@@ -30,6 +31,7 @@ class App extends React.Component {
                 const uploadButton = document.getElementById('Select-File-Button');
                 uploadButton.disabled = true;
                 this.loadMap(selectedFile);
+                this.setState({ fileExtension: fileExtension })
             } else {
                 alert('Please select a valid SHP, GeoJSON, or KML file.');
             }
@@ -38,6 +40,15 @@ class App extends React.Component {
             const uploadButton = document.getElementById('Select-File-Button');
             uploadButton.disabled = false;
         }
+    };
+    handleRenderButtonClick = () => {
+        this.setState({ rendering: true });
+        if(this.state.fileExtension==="json"){
+            this.renderGeoJSON();
+        }
+        // if(this.state.fileExtension==="shp"){
+        //     this.renderKMLFile();
+        // }
     };
 
     handleCancelClick = () => {
@@ -67,6 +78,44 @@ class App extends React.Component {
         }
     };
 
+    renderGeoJSON = () => {
+        const reader = new FileReader();
+        if (this.state.map) {
+            const map = this.state.map;
+            reader.onload = (e) => {
+                try {
+                    const geojsonData = JSON.parse(e.target.result); // Parse as GeoJSON
+                    const geojsonLayer = L.geoJSON(geojsonData).addTo(map);
+    
+                    // Fit the map bounds to the GeoJSON layer
+                    map.fitBounds(geojsonLayer.getBounds());
+                }
+                catch (error) {
+                    console.error('Error rendering GeoJSON:', error);
+                }
+            }
+            // Read the selected file as text
+        reader.readAsText(this.state.selectedFile);
+        };
+    }
+    // renderKMLFile = () => {
+    //     const reader = new FileReader();
+    //     if (this.state.map) {
+    //         const map = this.state.map;
+    //         reader.onload = (e) => {
+    //             // Read the file content as text
+    //         const kmlContent = e.target.result;
+    
+    //             // Convert KML to GeoJSON using togeojson library
+    //         const geojsonData = togeojson.kml(kmlContent);
+    //         const geojsonLayer = L.geoJSON(geojsonData).addTo(map);
+    
+    //         // Fit the map bounds to the GeoJSON layer
+    //         map.fitBounds(geojsonLayer.getBounds());
+    //         }
+    //     reader.readAsText(this.state.selectedFile);
+    //     }
+    // }
     render() {
         return (
             <div id="root">
@@ -109,7 +158,6 @@ class App extends React.Component {
             </div>
         );
     }
-    
 }
 
 export default App;
