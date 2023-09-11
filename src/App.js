@@ -9,6 +9,7 @@ class App extends React.Component {
         this.state = {
             selectedFile: null,
             map: null,
+            rendering: false,
         };
     }
 
@@ -57,16 +58,15 @@ class App extends React.Component {
         
         if(this.state.map){
             this.state.map.remove(); // Remove the old map
-            this.setState({ map: null });
-        }
-        
+            }       
+        this.setState({ selectedFile: null, map: null });
         this.handleFileInputChange();
     };
 
     loadMap = (shpFile) => {
         try {
             // Create a Leaflet map
-            const map = L.map('Container').setView([0, 0], 10); // Set initial view
+            const map = L.map('Container').setView([0, 0], 5); // Set initial view
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; < a href=" ">OpenStreetMap</ a> contributors',
             }).addTo(map);
@@ -90,6 +90,8 @@ class App extends React.Component {
                     accept=".shp, .json, .kml"
                     onChange={this.handleFileInputChange}
                 />
+                {(
+                <div>
                 <button
                     id="Select-File-Button"
                     onClick={this.handleSelectFileButton}
@@ -97,6 +99,16 @@ class App extends React.Component {
                 >
                     Select File
                 </button>
+                <button
+                    id="Render-File-Button"
+                    onClick={this.handleRenderButtonClick}
+                    disabled={!this.state.selectedFile}
+                >
+                    Render
+                </button>
+                </div>
+                )}
+                
                 {this.state.selectedFile && (
                     <div>
                         <p>Selected File: {this.state.selectedFile.name}</p >
