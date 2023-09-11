@@ -8,6 +8,7 @@ class App extends React.Component {
         super(props);
         this.state = {
             selectedFile: null,
+            map: null,
         };
     }
 
@@ -27,9 +28,17 @@ class App extends React.Component {
                 this.setState({ selectedFile });
                 const uploadButton = document.getElementById('Select-File-Button');
                 uploadButton.disabled = true;
-                this.loadShpMap(selectedFile);
+                this.loadMap(selectedFile);
             } else if (fileExtension === 'json') {
+                this.setState({ selectedFile });
+                const uploadButton = document.getElementById('Select-File-Button');
+                uploadButton.disabled = true;
+                this.loadMap(selectedFile);
             } else if (fileExtension === 'kml') {
+                this.setState({ selectedFile });
+                const uploadButton = document.getElementById('Select-File-Button');
+                uploadButton.disabled = true;
+                this.loadMap(selectedFile);
             } else {
                 alert('Please select a valid SHP, GeoJSON, or KML file.');
             }
@@ -45,21 +54,24 @@ class App extends React.Component {
         fileInput.value = '';
         const container = document.getElementById('Container');
         container.innerHTML = '';
+        
+        if(this.state.map){
+            this.state.map.remove(); // Remove the old map
+            this.setState({ map: null });
+        }
+        
         this.handleFileInputChange();
     };
 
-    loadShpMap = (shpFile) => {
+    loadMap = (shpFile) => {
         try {
             // Create a Leaflet map
             const map = L.map('Container').setView([0, 0], 10); // Set initial view
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                attribution: '&copy; < a href=" ">OpenStreetMap</ a> contributors',
             }).addTo(map);
-            L.leafletOmnivore
-                .shp(shpFile)
-                .on('ready', () => {
-                })
-                .addTo(map);
+            // Store the new map instance in the component state
+            this.setState({ map: map });
         } catch (error) {
             console.error('Error handle loading SHP file:', error);
         }
@@ -87,7 +99,7 @@ class App extends React.Component {
                 </button>
                 {this.state.selectedFile && (
                     <div>
-                        <p>Selected File: {this.state.selectedFile.name}</p>
+                        <p>Selected File: {this.state.selectedFile.name}</p >
                         <button onClick={this.handleCancelClick}>Cancel</button>
                     </div>
                 )}
