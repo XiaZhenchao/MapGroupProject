@@ -25,17 +25,7 @@ class App extends React.Component {
             const fileName = selectedFile.name;
             const fileExtension = fileName.split('.').pop().toLowerCase();
 
-            if (fileExtension === 'shp') {
-                this.setState({ selectedFile });
-                const uploadButton = document.getElementById('Select-File-Button');
-                uploadButton.disabled = true;
-                this.loadMap(selectedFile);
-            } else if (fileExtension === 'json') {
-                this.setState({ selectedFile });
-                const uploadButton = document.getElementById('Select-File-Button');
-                uploadButton.disabled = true;
-                this.loadMap(selectedFile);
-            } else if (fileExtension === 'kml') {
+            if (fileExtension === 'shp' || fileExtension === 'json' || fileExtension === 'kml'){
                 this.setState({ selectedFile });
                 const uploadButton = document.getElementById('Select-File-Button');
                 uploadButton.disabled = true;
