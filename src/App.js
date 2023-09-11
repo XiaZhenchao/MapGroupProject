@@ -3,6 +3,8 @@ import 'leaflet-omnivore'; // Import Leaflet Omnivore
 import L from 'leaflet'; // Import Leaflet
 import React from 'react';
 import './App.css';
+import toGeoJSON from 'togeojson';
+import { DOMParser } from 'xmldom'; 
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -46,9 +48,9 @@ class App extends React.Component {
         if(this.state.fileExtension==="json"){
             this.renderGeoJSON();
         }
-        // if(this.state.fileExtension==="shp"){
-        //     this.renderKMLFile();
-        // }
+        if(this.state.fileExtension==="kml"){
+            this.renderKMLFile();
+        }
     };
 
     handleCancelClick = () => {
@@ -98,24 +100,23 @@ class App extends React.Component {
         reader.readAsText(this.state.selectedFile);
         };
     }
-    // renderKMLFile = () => {
-    //     const reader = new FileReader();
-    //     if (this.state.map) {
-    //         const map = this.state.map;
-    //         reader.onload = (e) => {
-    //             // Read the file content as text
-    //         const kmlContent = e.target.result;
-    
-    //             // Convert KML to GeoJSON using togeojson library
-    //         const geojsonData = togeojson.kml(kmlContent);
-    //         const geojsonLayer = L.geoJSON(geojsonData).addTo(map);
-    
-    //         // Fit the map bounds to the GeoJSON layer
-    //         map.fitBounds(geojsonLayer.getBounds());
-    //         }
-    //     reader.readAsText(this.state.selectedFile);
-    //     }
-    // }
+    renderKMLFile = () => {
+        const reader = new FileReader();
+        if (this.state.map) {
+            const map = this.state.map;
+            reader.onload = (e) => {
+            // Read the file content
+            const kmlContent = e.target.result;
+            // Parse the KML data into a GeoJSON object.
+            const geojson = toGeoJSON.kml(new DOMParser().parseFromString(kmlContent, 'text/xml'));
+            // Convert KML to GeoJSON using togeojson library
+            const geojsonLayer = L.geoJSON(geojson).addTo(map);
+            // Fit the map bounds to the GeoJSON layer
+            map.fitBounds(geojsonLayer.getBounds());
+            }
+        reader.readAsText(this.state.selectedFile);
+        }
+    }
     render() {
         return (
             <div id="root">
