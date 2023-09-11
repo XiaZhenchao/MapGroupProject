@@ -1,3 +1,6 @@
+import 'leaflet/dist/leaflet.css'; // Import Leaflet CSS
+import 'leaflet-omnivore'; // Import Leaflet Omnivore
+import L from 'leaflet'; // Import Leaflet
 import React from 'react';
 import './App.css';
 class App extends React.Component {
@@ -16,15 +19,17 @@ class App extends React.Component {
     handleFileInputChange = () => {
         const fileInput = document.getElementById('fileInput');
         const selectedFile = fileInput.files[0];
-
         if (selectedFile) {
             const fileName = selectedFile.name;
             const fileExtension = fileName.split('.').pop().toLowerCase();
 
-            if (fileExtension === 'shp' || fileExtension === 'json' || fileExtension === 'kml') {
+            if (fileExtension === 'shp') {
                 this.setState({ selectedFile });
                 const uploadButton = document.getElementById('Select-File-Button');
                 uploadButton.disabled = true;
+                this.loadShpMap(selectedFile);
+            } else if (fileExtension === 'json') {
+            } else if (fileExtension === 'kml') {
             } else {
                 alert('Please select a valid SHP, GeoJSON, or KML file.');
             }
@@ -38,7 +43,26 @@ class App extends React.Component {
     handleCancelClick = () => {
         const fileInput = document.getElementById('fileInput');
         fileInput.value = '';
+        const container = document.getElementById('Container');
+        container.innerHTML = '';
         this.handleFileInputChange();
+    };
+
+    loadShpMap = (shpFile) => {
+        try {
+            // Create a Leaflet map
+            const map = L.map('Container').setView([0, 0], 10); // Set initial view
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            }).addTo(map);
+            L.leafletOmnivore
+                .shp(shpFile)
+                .on('ready', () => {
+                })
+                .addTo(map);
+        } catch (error) {
+            console.error('Error handle loading SHP file:', error);
+        }
     };
 
     render() {
@@ -67,7 +91,7 @@ class App extends React.Component {
                         <button onClick={this.handleCancelClick}>Cancel</button>
                     </div>
                 )}
-                <div id="Container"></div>
+                <div id="Container" ></div>
             </div>
         );
     }
