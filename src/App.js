@@ -5,6 +5,9 @@ import React from 'react';
 import './App.css';
 import toGeoJSON from 'togeojson';
 import { DOMParser } from 'xmldom'; 
+import { open } from 'shapefile'; 
+
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -18,6 +21,7 @@ class App extends React.Component {
 
     handleSelectFileButton = () => {
         const fileInput = document.getElementById('fileInput');
+        fileInput.accept = '.zip,.shp,.json,.kml';
         fileInput.click();
     };
 
@@ -34,7 +38,14 @@ class App extends React.Component {
                 uploadButton.disabled = true;
                 this.loadMap(selectedFile);
                 this.setState({ fileExtension: fileExtension })
-            } else {
+            } else if (fileExtension === 'zip') {
+                this.setState({ selectedFile });
+                const uploadButton = document.getElementById('Select-File-Button');
+                uploadButton.disabled = true;
+                this.loadMap(selectedFile);
+                this.setState({ fileExtension: fileExtension })
+            }
+            else {
                 alert('Please select a valid SHP, GeoJSON, or KML file.');
             }
         } else {
@@ -50,6 +61,9 @@ class App extends React.Component {
         }
         if(this.state.fileExtension==="kml"){
             this.renderKMLFile();
+        }
+        if(this.state.fileExtension==="shp"){
+            this.renderShpFile();
         }
     };
 
@@ -79,6 +93,67 @@ class App extends React.Component {
             console.error('Error handle loading SHP file:', error);
         }
     };
+
+
+    renderShpFile = () => {
+        const reader = new FileReader();
+        if (this.state.map) {
+          const map = this.state.map;
+          reader.onload = async (e) => {
+            try {
+              const shpData = await open(e.target.result); // Parse the Shapefile
+      
+              // Initialize an empty array to collect GeoJSON features
+              const features = [];
+      
+              // Iterate through each feature and add it to the 'features' array
+              while (true) {
+                const { done, value } = await shpData.read();
+                if (done) break;
+                features.push(value);
+              }
+      
+              // Create a GeoJSON feature collection
+              const geojsonData = {
+                type: 'FeatureCollection',
+                features: features,
+              };
+      
+              // Create a GeoJSON layer and add it to the map
+              const geojsonLayer = L.geoJSON(geojsonData).addTo(map);
+      
+              // Fit the map bounds to the GeoJSON layer
+              map.fitBounds(geojsonLayer.getBounds());
+            } catch (error) {
+              console.error('Error rendering Shapefile:', error);
+            }
+          };
+      
+          // Read the selected file as an ArrayBuffer
+          reader.readAsArrayBuffer(this.state.selectedFile);
+        }
+      };
+
+    renderGeoJSON = () => {
+        const reader = new FileReader();
+        if (this.state.map) {
+            const map = this.state.map;
+            reader.onload = (e) => {
+                try {
+                    const geojsonData = JSON.parse(e.target.result); // Parse as GeoJSON
+                    const geojsonLayer = L.geoJSON(geojsonData).addTo(map);
+    
+                    // Fit the map bounds to the GeoJSON layer
+                    map.fitBounds(geojsonLayer.getBounds());
+                }
+                catch (error) {
+                    console.error('Error rendering GeoJSON:', error);
+                }
+            }
+            // Read the selected file as text
+        reader.readAsText(this.state.selectedFile);
+        };
+    }
 
     renderGeoJSON = () => {
         const reader = new FileReader();
