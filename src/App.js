@@ -137,31 +137,30 @@ class App extends React.Component {
       };
 
 
-    renderGeoJSON = () => {
+      renderGeoJSON = () => {
         const reader = new FileReader();
         if (this.state.map) {
             const map = this.state.map;
             reader.onload = (e) => {
                 try {
-                    const geojsonData = JSON.parse(e.target.result); // Parse as GeoJSON
-                    // Create a GeoJSON layer and bind labels as popups to all features
+                    const geojsonData = JSON.parse(e.target.result); 
                     const geojsonLayer = L.geoJSON(geojsonData, {
-                    onEachFeature: function (feature, layer) {
-                    // Check if the feature has a 'name' property (replace 'name' with the actual property name containing region names)
+                   onEachFeature : onEachFeature
+                }).addTo(map);
+
+                function onEachFeature(feature, layer) {
                     if (feature.properties && feature.properties.name_en) {
-                       layer.bindPopup(feature.properties.name_en);
+                        layer.bindPopup(feature.properties.name_en);
                     }
-                },
-            }).addTo(map);
+                }
     
-                    // Fit the map bounds to the GeoJSON layer
                     map.fitBounds(geojsonLayer.getBounds());
                 }
                 catch (error) {
                     console.error('Error rendering GeoJSON:', error);
                 }
             }
-            // Read the selected file as text
+
         reader.readAsText(this.state.selectedFile);
         };
     }
@@ -187,7 +186,7 @@ class App extends React.Component {
         reader.readAsText(this.state.selectedFile); //intiate the selected file
         }
     }
-    
+
     render() {
         return (
             <div id="root">
