@@ -7,7 +7,6 @@ import toGeoJSON from 'togeojson';
 import { DOMParser } from 'xmldom'; 
 import { open } from 'shapefile'; 
 
-
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -80,7 +79,7 @@ class App extends React.Component {
         this.handleFileInputChange();
     };
 
-    loadMap = (shpFile) => {
+    loadMap = (selectedFile) => {
         try {
             // Create a Leaflet map
             const map = L.map('Container').setView([0, 0], 5); // Set initial view
@@ -134,6 +133,7 @@ class App extends React.Component {
         }
       };
 
+
     renderGeoJSON = () => {
         const reader = new FileReader();
         if (this.state.map) {
@@ -141,7 +141,15 @@ class App extends React.Component {
             reader.onload = (e) => {
                 try {
                     const geojsonData = JSON.parse(e.target.result); // Parse as GeoJSON
-                    const geojsonLayer = L.geoJSON(geojsonData).addTo(map);
+                    // Create a GeoJSON layer and bind labels as popups to all features
+                    const geojsonLayer = L.geoJSON(geojsonData, {
+                    onEachFeature: function (feature, layer) {
+                    // Check if the feature has a 'name' property (replace 'name' with the actual property name containing region names)
+                    if (feature.properties && feature.properties.name_en) {
+                       layer.bindPopup(feature.properties.name_en);
+                    }
+                },
+            }).addTo(map);
     
                     // Fit the map bounds to the GeoJSON layer
                     map.fitBounds(geojsonLayer.getBounds());
@@ -155,26 +163,7 @@ class App extends React.Component {
         };
     }
 
-    renderGeoJSON = () => {
-        const reader = new FileReader();
-        if (this.state.map) {
-            const map = this.state.map;
-            reader.onload = (e) => {
-                try {
-                    const geojsonData = JSON.parse(e.target.result); // Parse as GeoJSON
-                    const geojsonLayer = L.geoJSON(geojsonData).addTo(map);
-    
-                    // Fit the map bounds to the GeoJSON layer
-                    map.fitBounds(geojsonLayer.getBounds());
-                }
-                catch (error) {
-                    console.error('Error rendering GeoJSON:', error);
-                }
-            }
-            // Read the selected file as text
-        reader.readAsText(this.state.selectedFile);
-        };
-    }
+
     renderKMLFile = () => {
         const reader = new FileReader();
         if (this.state.map) {
@@ -185,7 +174,15 @@ class App extends React.Component {
             // Parse the KML data into a GeoJSON object.
             const geojson = toGeoJSON.kml(new DOMParser().parseFromString(kmlContent, 'text/xml'));
             // Convert KML to GeoJSON using togeojson library
-            const geojsonLayer = L.geoJSON(geojson).addTo(map);
+            const geojsonLayer = L.geoJSON(geojson, {
+                onEachFeature: function (feature, layer) {
+                // Check if the feature has a 'name' property (replace 'name' with the actual property name containing region names)
+                if (feature.properties && feature.properties.name_en) {
+                   layer.bindPopup(feature.properties.name_en);
+                }
+                },
+              }).addTo(map);
+      
             // Fit the map bounds to the GeoJSON layer
             map.fitBounds(geojsonLayer.getBounds());
             }
