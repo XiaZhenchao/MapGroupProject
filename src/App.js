@@ -168,30 +168,26 @@ class App extends React.Component {
 
 
     renderKMLFile = () => {
-        const reader = new FileReader();
-        if (this.state.map) {
-            const map = this.state.map;
-            reader.onload = (e) => {
-            // Read the file content
-            const kmlContent = e.target.result;
-            // Parse the KML data into a GeoJSON object.
-            const geojson = toGeoJSON.kml(new DOMParser().parseFromString(kmlContent, 'text/xml'));
-            // Convert KML to GeoJSON using togeojson library
+        const reader = new FileReader(); // FileReader class for reading file
+        if (this.state.map) {// if map variable from state exists(load map function excute successfully)
+            const map = this.state.map; //assgin map variable from state
+            reader.onload = (e) => { // event handler for FileReader
+            const kmlContent = e.target.result; 
+            const geojson = toGeoJSON.kml(new DOMParser().parseFromString(kmlContent, 'text/xml')); //Parse the data from KML file into GeoJSON type
             const geojsonLayer = L.geoJSON(geojson, {
-                onEachFeature: function (feature, layer) {
-                // Check if the feature has a 'name' property (replace 'name' with the actual property name containing region names)
-                if (feature.properties && feature.properties.name_en) {
-                   layer.bindPopup(feature.properties.name_en);
-                }
-                },
-              }).addTo(map);
-      
-            // Fit the map bounds to the GeoJSON layer
-            map.fitBounds(geojsonLayer.getBounds());
-            }
-        reader.readAsText(this.state.selectedFile);
+                onEachFeature : onEachFeature
+             }).addTo(map);
+             function onEachFeature(feature, layer) {
+                 if (feature.properties && feature.properties.name_en) {
+                     layer.bindPopup(feature.properties.name_en);
+                 }
+             }
+                 map.fitBounds(geojsonLayer.getBounds());
+             }
+        reader.readAsText(this.state.selectedFile); //intiate the selected file
         }
     }
+    
     render() {
         return (
             <div id="root">
