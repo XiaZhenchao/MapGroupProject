@@ -57,12 +57,15 @@ class App extends React.Component {
         this.setState({ rendering: true });
         if(this.state.fileExtension==="json"){
             this.renderGeoJSON();
+            this.setState({ rendering: true })
         }
         if(this.state.fileExtension==="kml"){
             this.renderKMLFile();
+            this.setState({ rendering: true })
         }
         if(this.state.fileExtension==="shp"){
             this.renderShpFile();
+            this.setState({ rendering: true })
         }
     };
 
@@ -74,12 +77,12 @@ class App extends React.Component {
         
         if(this.state.map){
             this.state.map.remove(); // Remove the old map
-            }       
-        this.setState({ selectedFile: null, map: null });
+        }       
+        this.setState({ selectedFile: null, map: null, rendering:false });
         this.handleFileInputChange();
     };
 
-    loadMap = (selectedFile) => {
+    loadMap = () => {
         try {
             // Create a Leaflet map
             const map = L.map('Container').setView([0, 0], 5); // Set initial view
@@ -207,14 +210,14 @@ class App extends React.Component {
                 <button
                     id="Select-File-Button"
                     onClick={this.handleSelectFileButton}
-                    disabled={!!this.state.selectedFile}
+                    disabled={this.state.selectedFile}
                 >
                     Select File
                 </button>
                 <button
                     id="Render-File-Button"
                     onClick={this.handleRenderButtonClick}
-                    disabled={!this.state.selectedFile}
+                    disabled={!this.state.selectedFile || this.state.rendering}
                 >
                     Render
                 </button>
