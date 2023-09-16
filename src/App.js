@@ -193,7 +193,7 @@ class App extends React.Component {
                     style={{ display: 'none' }}
                     onChange={this.handleFileInputChange}
                 />
-                {(
+                
                 <div>
                 <button
                     id="Select-File-Button"
@@ -210,7 +210,7 @@ class App extends React.Component {
                     Render
                 </button>
                 </div>
-                )}
+                
                 
                 {this.state.selectedFile && (
                     <div>
