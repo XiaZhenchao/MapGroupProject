@@ -20,7 +20,7 @@ class App extends React.Component {
 
     handleSelectFileButton = () => {
         const fileInput = document.getElementById('fileInput');
-        fileInput.accept = '.zip,.shp,.json,.kml';
+        fileInput.accept = '.zip,.shp,.json,.kml,.dbf';
         fileInput.click();
     };
 
@@ -89,7 +89,6 @@ class App extends React.Component {
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; < a href=" ">OpenStreetMap</ a> contributors',
             }).addTo(map);
-            // Store the new map instance in the component state
             this.setState({ map: map });
         } catch (error) {
             console.error('Error handle loading SHP file:', error);
@@ -98,70 +97,64 @@ class App extends React.Component {
 
 
     renderShpFile = () => {
-        const reader = new FileReader();
-        if (this.state.map) {
-          const map = this.state.map;
-          reader.onload = async (e) => {
+        const reader = new FileReader();// FileReader class for reading file
+        if (this.state.map) {// if map variable from state exists(load map function excute successfully)
+          const map = this.state.map;//assgin map variable from state
+          reader.onload = async (e) => {// event handler for FileReader
             try {
-              const shpData = await open(e.target.result); // Parse the Shapefile
+              const shpData = await open(e.target.result);//Parse the data from shp file 
       
-              // Initialize an empty array to collect GeoJSON features
-              const features = [];
+              const features = [];//create an empty array to store features
       
-              // Iterate through each feature and add it to the 'features' array
-              while (true) {
-                const { done, value } = await shpData.read();
-                if (done) break;
-                features.push(value);
+              while (true) { //while loop
+                const { done, value } = await shpData.read();//try to read the next value of the data
+                if (done) break;//if the data is finished to read
+                features.push(value);//put the data into the feature array
               }
       
-              // Create a GeoJSON feature collection
               const geojsonData = {
                 type: 'FeatureCollection',
                 features: features,
               };
       
-              // Create a GeoJSON layer and add it to the map
-              const geojsonLayer = L.geoJSON(geojsonData).addTo(map);
+              const geojsonLayer = L.geoJSON(geojsonData).addTo(map);//adds the geojason layer to the leaft map.
       
-              // Fit the map bounds to the GeoJSON layer
-              map.fitBounds(geojsonLayer.getBounds());
+              map.fitBounds(geojsonLayer.getBounds());//make the layer and map fit to each other
             } catch (error) {
               console.error('Error rendering Shapefile:', error);
             }
           };
       
-          // Read the selected file as an ArrayBuffer
-          reader.readAsArrayBuffer(this.state.selectedFile);
+          reader.readAsArrayBuffer(this.state.selectedFile);//used to read the contents of the specified file
         }
       };
 
 
       renderGeoJSON = () => {
-        const reader = new FileReader();
-        if (this.state.map) {
-            const map = this.state.map;
-            reader.onload = (e) => {
+        const reader = new FileReader();// FileReader class for reading file
+        if (this.state.map) {// if map variable from state exists(load map function excute successfully)
+            const map = this.state.map;//assgin map variable from state
+            reader.onload = (e) => {// event handler for FileReader
                 try {
-                    const geojsonData = JSON.parse(e.target.result); 
-                    const geojsonLayer = L.geoJSON(geojsonData, {
-                   onEachFeature : onEachFeature
-                }).addTo(map);
+                    const geojsonData = JSON.parse(e.target.result); //Parse the data of GeoJSON file
+                    const geojsonLayer = L.geoJSON(geojsonData, { //create geojason layer
+                        onEachFeature : onEachFeature //calls oneachFeature function
+                    }).addTo(map); //adds the geojason layer to the leaft map.
 
-                function onEachFeature(feature, layer) {
-                    if (feature.properties && feature.properties.name_en) {
-                        layer.bindPopup(feature.properties.name_en);
+                function onEachFeature(feature, layer) { //onEachFeature function
+                    if (feature.properties && feature.properties.name_en) { //check the feature has the properties and has a property that names name_en or not
+                        layer.bindTooltip(feature.properties.name_en);//if both are yes, binds the tootip with the content of peroperty.name_en to the layer
                     }
                 }
     
-                    map.fitBounds(geojsonLayer.getBounds());
+                    map.fitBounds(geojsonLayer.getBounds());//make the layer and map fit to each other
                 }
                 catch (error) {
                     console.error('Error rendering GeoJSON:', error);
                 }
             }
 
-        reader.readAsText(this.state.selectedFile);
+        reader.readAsText(this.state.selectedFile);//used to read the contents of the specified file
         };
     }
 
@@ -176,12 +169,13 @@ class App extends React.Component {
             const geojsonLayer = L.geoJSON(geojson, {
                 onEachFeature : onEachFeature
              }).addTo(map);
+
              function onEachFeature(feature, layer) {
                  if (feature.properties && feature.properties.name_en) {
-                     layer.bindPopup(feature.properties.name_en);
+                    layer.bindTooltip(feature.properties.name_en);
                  }
              }
-                 map.fitBounds(geojsonLayer.getBounds());
+                 map.fitBounds(geojsonLayer.getBounds());//make the layer and map fit to each other
              }
         reader.readAsText(this.state.selectedFile); //intiate the selected file
         }
@@ -197,7 +191,6 @@ class App extends React.Component {
                     type="file"
                     id="fileInput"
                     style={{ display: 'none' }}
-                    accept=".shp, .json, .kml"
                     onChange={this.handleFileInputChange}
                 />
                 {(
