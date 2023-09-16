@@ -10,6 +10,7 @@ import { open } from 'shapefile';
 class App extends React.Component {
     constructor(props) {
         super(props);
+        //setup the initial state
         this.state = {
             selectedFile: null,
             map: null,
@@ -88,10 +89,10 @@ class App extends React.Component {
             const map = L.map('Container').setView([0, 0], 5); // Set initial view
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; < a href=" ">OpenStreetMap</ a> contributors',
-            }).addTo(map);
+            }).addTo(map);//load and display tile layers on the map
             this.setState({ map: map });
         } catch (error) {
-            console.error('Error handle loading SHP file:', error);
+            console.error('Error to load the map:', error);
         }
     };
 
@@ -108,7 +109,7 @@ class App extends React.Component {
       
               while (true) { //while loop
                 const { done, value } = await shpData.read();//try to read the next value of the data
-                if (done) break;//if the data is finished to read
+                if (done) break;//if the data is finished to read, jump out to the loop
                 features.push(value);//put the data into the feature array
               }
       
@@ -142,8 +143,13 @@ class App extends React.Component {
                     }).addTo(map); //adds the geojason layer to the leaft map.
 
                 function onEachFeature(feature, layer) { //onEachFeature function
-                    if (feature.properties && feature.properties.name_en) { //check the feature has the properties and has a property that names name_en or not
-                        layer.bindTooltip(feature.properties.name_en);//if both are yes, binds the tootip with the content of peroperty.name_en to the layer
+                    let featureArray = []; //create an empty array to store all the features
+                     if (feature.properties) {
+                        for (let i in feature.properties) { //for loop to loop the feature
+                            featureArray.push(i + ": " + feature.properties[i]);//put the feature into the arrayls
+                        }
+
+                        layer.bindTooltip(featureArray.join("<br />"));
                     }
                 }
     
@@ -171,8 +177,13 @@ class App extends React.Component {
              }).addTo(map);
 
              function onEachFeature(feature, layer) {
-                 if (feature.properties && feature.properties.name_en) {
-                    layer.bindTooltip(feature.properties.name_en);
+                let featureArray = [];
+                 if (feature.properties) {
+                    for (let i in feature.properties) {
+                        featureArray.push(i + ": " + feature.properties[i]);
+                    }
+
+                    layer.bindTooltip(featureArray.join("<br />"));
                  }
              }
                  map.fitBounds(geojsonLayer.getBounds());//make the layer and map fit to each other
